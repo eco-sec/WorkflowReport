@@ -88,6 +88,7 @@ sap.ui.define([], function () {
 				results: [
 					{
 						REQUEST_ID: "WF001",
+						WORKFLOW_INSTANCE_ID: "WF001",
 						EMPLOYEE_ID: "107120",
 						EMPLOYEE_NAME: "Sara Mohammed",
 						WORKFLOW_TYPE: "Training Request",
@@ -111,6 +112,7 @@ sap.ui.define([], function () {
 					},
 					{
 						REQUEST_ID: "WF002",
+						WORKFLOW_INSTANCE_ID: "WF002",
 						EMPLOYEE_ID: "107121",
 						EMPLOYEE_NAME: "Omar Ali",
 						WORKFLOW_TYPE: "Training Request",
@@ -134,6 +136,7 @@ sap.ui.define([], function () {
 					},
 					{
 						REQUEST_ID: "WF003",
+						WORKFLOW_INSTANCE_ID: "WF003",
 						EMPLOYEE_ID: "107122",
 						EMPLOYEE_NAME: "Fatima Abdullah",
 						WORKFLOW_TYPE: "Training Request",
@@ -157,6 +160,7 @@ sap.ui.define([], function () {
 					},
 					{
 						REQUEST_ID: "WF004",
+						WORKFLOW_INSTANCE_ID: "WF004",
 						EMPLOYEE_ID: "107123",
 						EMPLOYEE_NAME: "Mohammed Salem",
 						WORKFLOW_TYPE: "Training Request",
@@ -180,6 +184,7 @@ sap.ui.define([], function () {
 					},
 					{
 						REQUEST_ID: "WF005",
+						WORKFLOW_INSTANCE_ID: "WF005",
 						EMPLOYEE_ID: "107124",
 						EMPLOYEE_NAME: "Layla Ibrahim",
 						WORKFLOW_TYPE: "Training Request",
@@ -203,6 +208,7 @@ sap.ui.define([], function () {
 					},
 					{
 						REQUEST_ID: "WF006",
+						WORKFLOW_INSTANCE_ID: "WF006",
 						EMPLOYEE_ID: "107125",
 						EMPLOYEE_NAME: "Khalid Mansour",
 						WORKFLOW_TYPE: "Training Request",
