@@ -91,12 +91,23 @@ sap.ui.define([], function () {
 						WORKFLOW_INSTANCE_ID: "WF001",
 						EMPLOYEE_ID: "107120",
 						EMPLOYEE_NAME: "Sara Mohammed",
+						EMPLOYEE_EMAIL: "sara.mohammed@example.com",
+						EMPLOYEE_POSITION: "Developer",
+						EMPLOYEE_ORGANIZATION_ID: "IT-001",
+						EMPLOYEE_ORGANIZATION_DESC: "IT Department",
+						GRADE_LEVEL: "L3",
+						TRAINING_TYPE_ID: "1",
+						TRAINING_TYPE_DESC: "Technical Training",
 						WORKFLOW_TYPE: "Training Request",
 						WORKFLOW_STATUS: "Pending",
 						CLASS_ID: "CL001",
 						CLASS_TITLE: "SAP ABAP Programming Fundamentals",
+						CLASS_DESCRIPTION: "Learn ABAP programming fundamentals",
 						CLASS_START_DATE: "/Date(1735689600000)/", // 2025-01-01
 						CLASS_END_DATE: "/Date(1735862400000)/", // 2025-01-03
+						CLASS_TOTAL_DAYS: "3",
+						COUNTRY: "Saudi Arabia",
+						FACILITY: "Training Center Riyadh",
 						CREATED_DATE: "/Date(1733097600000)/", // 2024-12-02
 						SUBMITTED_DATE: "/Date(1733097600000)/",
 						APPROVED_DATE: null,
