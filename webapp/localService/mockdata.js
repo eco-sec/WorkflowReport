@@ -298,6 +298,74 @@ sap.ui.define([], function () {
 			message: "Workflow rejected successfully",
 			workflowId: "WF" + Date.now(),
 			status: "Rejected"
+		},
+
+		// Mock workflow instance details (for details page)
+		workflowInstanceDetails: {
+			currentApproverList: [
+				{
+					APPROVER_ID: "107119",
+					APPROVER_NAME: "Ahmed Hassan",
+					APPROVER_EMAIL: "ahmed.hassan@company.com",
+					APPROVAL_LEVEL: "1",
+					STATUS: "Pending"
+				}
+			],
+			approverList: [
+				{
+					APPROVER_ID: "107119",
+					APPROVER_NAME: "Ahmed Hassan",
+					APPROVER_EMAIL: "ahmed.hassan@company.com",
+					APPROVAL_LEVEL: "1",
+					STATUS: "Pending",
+					APPROVAL_DATE: null
+				},
+				{
+					APPROVER_ID: "107121",
+					APPROVER_NAME: "Mike Johnson",
+					APPROVER_EMAIL: "mike.johnson@company.com",
+					APPROVAL_LEVEL: "2",
+					STATUS: "Not Started",
+					APPROVAL_DATE: null
+				}
+			],
+			ApproverCommentList: [
+				{
+					APPROVER_ID: "107119",
+					APPROVER_NAME: "Ahmed Hassan",
+					COMMENT: "Reviewed and approved",
+					COMMENT_DATE: "/Date(1704067200000)/",
+					ACTION: "Approved"
+				}
+			]
+		},
+
+		// Mock business event details (for business event tab)
+		businessEventDetails: {
+			eventDetails: {
+				EVENT_ID: "BE001",
+				EVENT_TITLE: "Technical Training Workshop",
+				EVENT_DESCRIPTION: "Comprehensive technical training on new technologies",
+				EVENT_TYPE: "Workshop",
+				EVENT_LOCATION: "Training Center A",
+				START_DATE: "/Date(1730937600000)/",
+				END_DATE: "/Date(1730937600000)/",
+				START_TIME: "PT09H00M00S",
+				END_TIME: "PT17H00M00S",
+				ORGANIZER: "Training Department",
+				MAX_PARTICIPANTS: "30",
+				CURRENT_PARTICIPANTS: "12",
+				STATUS: "Open"
+			},
+			attachments: [
+				{
+					ATTACHMENT_ID: "ATT001",
+					FILE_NAME: "training_agenda.pdf",
+					FILE_SIZE: "524288",
+					UPLOAD_DATE: "/Date(1704067200000)/",
+					UPLOADED_BY: "Admin"
+				}
+			]
 		}
 	};
 });

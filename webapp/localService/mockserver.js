@@ -35,7 +35,7 @@ sap.ui.define([
 				var mockData = null;
 				var shouldMock = false;
 
-				// Mock OData Service Root (metadata, $batch, $count, WorkflowLogView)
+				// Mock OData Service Root (metadata, $batch, $count, WorkflowLogView, WorkflowLog)
 				if (url && url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata") > -1) {
 
 					// Handle metadata request
@@ -81,6 +81,27 @@ sap.ui.define([
 						return dfd2.promise(countXhr);
 					}
 
+					// Handle WorkflowLog data request (for details page - with $filter support)
+					else if (url.indexOf("/WorkflowLog") > -1 && url.indexOf("View") === -1) {
+						console.log("✅ Mocking: Workflow Log API (with OData filter)");
+
+						// Apply OData filter if present
+						var filteredData = JSON.parse(JSON.stringify(oMockData.workflowReport));
+
+						// Extract WORKFLOW_INSTANCE_ID from $filter
+						var workflowIdMatch = url.match(/WORKFLOW_INSTANCE_ID eq '([^']+)'/);
+						if (workflowIdMatch && workflowIdMatch[1]) {
+							var workflowId = decodeURIComponent(workflowIdMatch[1]);
+							console.log("  → Filtering by WORKFLOW_INSTANCE_ID:", workflowId);
+							filteredData.d.results = filteredData.d.results.filter(function(item) {
+								return item.WORKFLOW_INSTANCE_ID === workflowId;
+							});
+						}
+
+						mockData = filteredData;
+						shouldMock = true;
+					}
+
 					// Handle WorkflowLogView data request
 					else if (url.indexOf("/WorkflowLogView") > -1) {
 						console.log("✅ Mocking: Workflow Report List API");
@@ -91,7 +112,7 @@ sap.ui.define([
 					// Handle service root request
 					else {
 						console.log("✅ Mocking: OData Service Root");
-						mockData = {"d":{"EntitySets":["WorkflowLogView"]}};
+						mockData = {"d":{"EntitySets":["WorkflowLogView", "WorkflowLog"]}};
 						shouldMock = true;
 					}
 				}
@@ -128,6 +149,28 @@ sap.ui.define([
 				else if (url && url.indexOf("/cpi/workflow/reject") > -1) {
 					console.log("✅ Mocking: Workflow Rejection API");
 					mockData = oMockData.rejectionResponse;
+					shouldMock = true;
+				}
+
+				// Mock Workflow Instance Details (for details page)
+				else if (url && url.indexOf("/cpi/lms/instance-work-items") > -1) {
+					console.log("✅ Mocking: Workflow Instance Details API");
+
+					// Extract taskId from URL
+					var taskIdMatch = url.match(/taskId=([^&]+)/);
+					var taskId = taskIdMatch ? decodeURIComponent(taskIdMatch[1]) : null;
+
+					console.log("  → Task ID:", taskId);
+
+					// Return mock workflow details
+					mockData = oMockData.workflowInstanceDetails;
+					shouldMock = true;
+				}
+
+				// Mock Business Event Details (for business event tab)
+				else if (url && url.indexOf("/lmsproject/hana/xsjs/GetEventById.xsjs") > -1) {
+					console.log("✅ Mocking: Business Event Details API");
+					mockData = oMockData.businessEventDetails;
 					shouldMock = true;
 				}
 
