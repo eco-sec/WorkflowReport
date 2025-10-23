@@ -317,42 +317,66 @@ sap.ui.define([], function () {
 			status: "Rejected"
 		},
 
-		// Mock workflow instance details (for details page)
+		// Mock workflow instance details (for details page) - camelCase for workflowReportModel
 		workflowInstanceDetails: {
+			requestId: "WF002",
+			trainingTypeId: "1",
+			trainingTypeDesc: "Technical Training",
+			classId: "CL002",
+			classTitle: "SAP Fiori Development",
+			classDescription: "Learn SAP Fiori development fundamentals",
+			classStartDateDesc: "2025-01-08",
+			classEndDateDesc: "2025-01-10",
+			classTotalDays: "3",
+			country: "Saudi Arabia",
+			city: "Jeddah",
+			trainingCenterName: "SAP Education Center",
+			trainingDuration: "3 days",
+			trainingLanguage: "English",
+			price: "15000",
+			currency: "SAR",
+			status: "Approved",
+			employeeId: "107121",
+			employeeName: "Omar Ali",
+			employeeMail: "omar.ali@example.com",
+			employeePosition: "HR Specialist",
+			employeeOrganizationId: "HR-001",
+			employeeOrganizationDesc: "HR Department",
+			gradeLevel: "L4",
+			facility: "Training Center Jeddah",
 			currentApproverList: [
 				{
-					APPROVER_ID: "107119",
-					APPROVER_NAME: "Ahmed Hassan",
-					APPROVER_EMAIL: "ahmed.hassan@company.com",
-					APPROVAL_LEVEL: "1",
-					STATUS: "Pending"
+					Agent: "Ahmed Hassan",
+					EmpEmail: "ahmed.hassan@company.com",
+					PositionName: "Senior Manager",
+					OrgName: "IT Department",
+					Status: "Pending"
 				}
 			],
 			approverList: [
 				{
-					APPROVER_ID: "107119",
-					APPROVER_NAME: "Ahmed Hassan",
-					APPROVER_EMAIL: "ahmed.hassan@company.com",
-					APPROVAL_LEVEL: "1",
-					STATUS: "Pending",
-					APPROVAL_DATE: null
+					Agent: "Ahmed Hassan",
+					EmpEmail: "ahmed.hassan@company.com",
+					PositionName: "Senior Manager",
+					OrgName: "IT Department",
+					Status: "Pending",
+					ApprovalDate: null
 				},
 				{
-					APPROVER_ID: "107121",
-					APPROVER_NAME: "Mike Johnson",
-					APPROVER_EMAIL: "mike.johnson@company.com",
-					APPROVAL_LEVEL: "2",
-					STATUS: "Not Started",
-					APPROVAL_DATE: null
+					Agent: "Mike Johnson",
+					EmpEmail: "mike.johnson@company.com",
+					PositionName: "Director",
+					OrgName: "IT Department",
+					Status: "Not Started",
+					ApprovalDate: null
 				}
 			],
 			ApproverCommentList: [
 				{
-					APPROVER_ID: "107119",
-					APPROVER_NAME: "Ahmed Hassan",
-					COMMENT: "Reviewed and approved",
-					COMMENT_DATE: "/Date(1704067200000)/",
-					ACTION: "Approved"
+					Agent: "Ahmed Hassan",
+					Comment: "Reviewed and approved",
+					CommentDate: "/Date(1704067200000)/",
+					Action: "Approved"
 				}
 			]
 		},
