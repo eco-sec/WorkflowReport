@@ -35,8 +35,88 @@ sap.ui.define([
 				var mockData = null;
 				var shouldMock = false;
 
+				// Mock OData Service Root (metadata, $batch)
+				if (url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata") > -1) {
+					// Handle metadata request
+					if (url.indexOf("$metadata") > -1) {
+						console.log("✅ Mocking: OData $metadata");
+						var dfd = jQuery.Deferred();
+						var mockXhr = {
+							readyState: 4,
+							status: 200,
+							statusText: "OK",
+							responseText: '<?xml version="1.0" encoding="utf-8"?><edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"><edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><Schema Namespace="WorkflowReportService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"><EntityType Name="WorkflowLogView"><Key><PropertyRef Name="REQUEST_ID"/></Key><Property Name="REQUEST_ID" Type="Edm.String" Nullable="false"/><Property Name="EMPLOYEE_ID" Type="Edm.String"/><Property Name="EMPLOYEE_NAME" Type="Edm.String"/><Property Name="WORKFLOW_TYPE" Type="Edm.String"/><Property Name="WORKFLOW_STATUS" Type="Edm.String"/><Property Name="CLASS_ID" Type="Edm.String"/><Property Name="CLASS_TITLE" Type="Edm.String"/><Property Name="CLASS_START_DATE" Type="Edm.DateTime"/><Property Name="CLASS_END_DATE" Type="Edm.DateTime"/><Property Name="CREATED_DATE" Type="Edm.DateTime"/></EntityType><EntityContainer Name="WorkflowReportServiceEntities" m:IsDefaultEntityContainer="true"><EntitySet Name="WorkflowLogView" EntityType="WorkflowReportService.WorkflowLogView"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>',
+							getResponseHeader: function(name) {
+								if (name === "Content-Type") return "application/xml";
+								return null;
+							},
+							getAllResponseHeaders: function() { return "Content-Type: application/xml"; }
+						};
+						setTimeout(function() {
+							if (options.success) options.success(mockXhr.responseText, "success", mockXhr);
+							if (options.complete) options.complete(mockXhr, "success");
+							dfd.resolve(mockXhr.responseText, "success", mockXhr);
+						}, 100);
+						return dfd.promise(mockXhr);
+					}
+
+					// Handle $batch request
+					if (url.indexOf("$batch") > -1) {
+						console.log("✅ Mocking: OData $batch");
+						mockData = oMockData.workflowReport;
+						shouldMock = true;
+					}
+
+					// Handle WorkflowLogView data request
+					else if (url.indexOf("/WorkflowLogView") > -1 || url.indexOf("$count") > -1) {
+						console.log("✅ Mocking: Workflow Report List API");
+
+						// Handle count request
+						if (url.indexOf("$count") > -1) {
+							var dfd2 = jQuery.Deferred();
+							var countXhr = {
+								readyState: 4,
+								status: 200,
+								statusText: "OK",
+								responseText: String(oMockData.workflowReport.d.results.length),
+								getResponseHeader: function() { return "text/plain"; },
+								getAllResponseHeaders: function() { return ""; }
+							};
+							setTimeout(function() {
+								if (options.success) options.success(countXhr.responseText, "success", countXhr);
+								if (options.complete) options.complete(countXhr, "success");
+								dfd2.resolve(countXhr.responseText, "success", countXhr);
+							}, 100);
+							return dfd2.promise(countXhr);
+						}
+
+						mockData = oMockData.workflowReport;
+						shouldMock = true;
+					}
+					// Handle service root request (just return empty success)
+					else {
+						console.log("✅ Mocking: OData Service Root");
+						var dfd3 = jQuery.Deferred();
+						var rootXhr = {
+							readyState: 4,
+							status: 200,
+							statusText: "OK",
+							responseText: '{"d":{"EntitySets":["WorkflowLogView"]}}',
+							responseJSON: {"d":{"EntitySets":["WorkflowLogView"]}},
+							getResponseHeader: function() { return "application/json"; },
+							getAllResponseHeaders: function() { return ""; }
+						};
+						setTimeout(function() {
+							if (options.success) options.success(rootXhr.responseJSON, "success", rootXhr);
+							if (options.complete) options.complete(rootXhr, "success");
+							dfd3.resolve(rootXhr.responseJSON, "success", rootXhr);
+						}, 100);
+						return dfd3.promise(rootXhr);
+					}
+				}
+
 				// Mock User API
-				if (url.indexOf("/services/userapi/currentUser") > -1 || url.indexOf("/scpServices/userAPI/currentUser") > -1) {
+				else if (url.indexOf("/services/userapi/currentUser") > -1 || url.indexOf("/scpServices/userAPI/currentUser") > -1) {
 					console.log("✅ Mocking: User API");
 					mockData = oMockData.currentUser;
 					shouldMock = true;
@@ -46,49 +126,6 @@ sap.ui.define([
 				else if (url.indexOf("/cpi/employee/getSubordinate") > -1 || url.indexOf("/cpi/tc/getSubordinate") > -1) {
 					console.log("✅ Mocking: Subordinates API");
 					mockData = oMockData.subordinates;
-					shouldMock = true;
-				}
-
-				// Mock Workflow Report List (WorkflowLogView)
-				else if (url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata/WorkflowLogView") > -1) {
-					console.log("✅ Mocking: Workflow Report List API");
-
-					// Check if filtering by employee ID
-					var employeeIdMatch = url.match(/EMPLOYEE_ID eq '(\d+)'/);
-					var employeeId = employeeIdMatch ? employeeIdMatch[1] : null;
-
-					if (employeeId) {
-						// Filter workflow data for specific employee
-						var filteredData = JSON.parse(JSON.stringify(oMockData.workflowReport));
-						filteredData.d.results = filteredData.d.results.filter(function(item) {
-							return item.EMPLOYEE_ID === employeeId;
-						});
-						mockData = filteredData;
-					} else {
-						mockData = oMockData.workflowReport;
-					}
-					shouldMock = true;
-				}
-
-				// Mock Workflow Details (single request)
-				else if (url.match(/WorkflowReportService\.xsodata\/WorkflowLogView\('([^']+)'\)/)) {
-					console.log("✅ Mocking: Workflow Details API");
-					var requestIdMatch = url.match(/WorkflowLogView\('([^']+)'\)/);
-					var requestId = requestIdMatch ? requestIdMatch[1] : "WF001";
-
-					// Find the workflow in mock data
-					var workflow = oMockData.workflowReport.d.results.find(function(item) {
-						return item.REQUEST_ID === requestId;
-					});
-
-					if (workflow) {
-						mockData = { d: workflow };
-					} else {
-						// Return default details
-						var detailsData = JSON.parse(JSON.stringify(oMockData.workflowDetails));
-						detailsData.d.REQUEST_ID = requestId;
-						mockData = detailsData;
-					}
 					shouldMock = true;
 				}
 
