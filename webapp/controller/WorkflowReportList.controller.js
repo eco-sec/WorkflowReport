@@ -296,10 +296,18 @@ sap.ui.define([
         onItemPress: function (oEvent) {
             var oItem = oEvent.getParameter("listItem") || oEvent.getSource();
             var oBindingContext = oItem.getBindingContext("workflowLogModel");
-            if (!oBindingContext) return;
+            if (!oBindingContext) {
+                console.error("No binding context found for item");
+                return;
+            }
 
             var sRequestId = oBindingContext.getProperty("WORKFLOW_INSTANCE_ID");
-            if (!sRequestId) return;
+            console.log("Navigating to details for WORKFLOW_INSTANCE_ID:", sRequestId);
+
+            if (!sRequestId) {
+                console.error("No WORKFLOW_INSTANCE_ID found");
+                return;
+            }
 
             sap.ui.core.UIComponent.getRouterFor(this).navTo("workflowReportDetails", {
                 requestId: sRequestId

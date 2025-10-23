@@ -15,6 +15,7 @@ sap.ui.define([
 
 		_onObjectMatched: function (oEvent) {
 			var sEventId = oEvent.getParameter("arguments").requestId;
+			console.log("📋 Details page - Loading workflow:", sEventId);
 			if (sEventId) {
 				this._loadEventData(sEventId);
 			}
@@ -45,9 +46,12 @@ sap.ui.define([
 		_loadEventData: function (sEventId) {
 			var that = this;
 
+			console.log("  → Step 1: Fetching WorkflowLog for ID:", sEventId);
+
 			// Step 1: Get WorkflowLog by ID
 			WorkflowReportService.getWorkflowLogById(sEventId)
 				.then(function (workflowLogData) {
+					console.log("  ✅ WorkflowLog data received:", workflowLogData);
 					// Optional: Set the WorkflowLog data in a model if needed
 					that.getView().setModel(new JSONModel(workflowLogData), "workflowLogModel");
 					var trainingTypeId = workflowLogData.TRAINING_TYPE_ID;
