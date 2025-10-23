@@ -4,9 +4,9 @@ sap.ui.define([
     "sap/ui/model/odata/v2/ODataModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/export/Spreadsheet",
+    // "sap/ui/export/Spreadsheet", // Not available in OpenUI5 - only in commercial SAPUI5
     "sap/m/MessageToast"
-], function (Controller, JSONModel, ODataModel, Filter, FilterOperator, Spreadsheet, MessageToast) {
+], function (Controller, JSONModel, ODataModel, Filter, FilterOperator, /* Spreadsheet, */ MessageToast) {
     "use strict";
 
     return Controller.extend("workflowReport.workflowReport.controller.WorkflowReportList", {
@@ -120,6 +120,13 @@ sap.ui.define([
         },
 
         onExportToExcel: function () {
+            // Excel export using sap/ui/export/Spreadsheet is not available in OpenUI5
+            // This feature requires commercial SAPUI5 license
+            MessageToast.show("Excel export is only available in commercial SAPUI5. Please use commercial SAPUI5 for this feature.");
+
+            // Alternative: Export as CSV for OpenUI5
+            // Uncomment below to enable CSV export
+            /*
             var that = this;
             var oModel = new ODataModel("/lmsproject/hana/xsodata/WorkflowReportService.xsodata/");
 
@@ -132,38 +139,16 @@ sap.ui.define([
                         return;
                     }
 
-                    var aColumns = [
-                        { label: "Request ID", property: "REQUEST_ID" },
-                        { label: "Employee ID", property: "EMPLOYEE_ID" },
-                        { label: "Employee Name", property: "EMPLOYEE_NAME" },
-                        { label: "Employee Organization ID", property: "EMPLOYEE_ORGANIZATION_ID" },
-                        { label: "Class ID", property: "CLASS_ID" },
-                        { label: "Class Title", property: "CLASS_TITLE" },
-                        { label: "Status", property: "WORKFLOW_STATUS" },
-                        { label: "Training Type", property: "TRAINING_TYPE_DESC" },
-                        {
-                            label: "Creation Date",
-                            property: "WLR_CREATION_DATE",
-                            type: "date",
-                            format: "dd/MM/yyyy"
-                        }
-                    ];
-
-                    var oSpreadsheet = new Spreadsheet({
-                        workbook: { columns: aColumns },
-                        dataSource: uniqueData,
-                        fileName: "Workflow_Report.xlsx"
-                    });
-
-                    oSpreadsheet.build()
-                        .then(() => MessageToast.show("Export to Excel successful!"))
-                        .catch(console.error)
-                        .finally(() => oSpreadsheet.destroy());
+                    // Convert to CSV and download
+                    var csv = that._convertToCSV(uniqueData);
+                    that._downloadCSV(csv, "Workflow_Report.csv");
+                    MessageToast.show("Export to CSV successful!");
                 },
                 error: function (error) {
                     console.error("Failed to export data:", error);
                 }
             });
+            */
         },
 
         onItemPress: function (oEvent) {
