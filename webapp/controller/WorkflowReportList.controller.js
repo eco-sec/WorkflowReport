@@ -3,9 +3,9 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    // "sap/ui/export/Spreadsheet", // Not available in OpenUI5 - only in commercial SAPUI5
+    "sap/ui/export/Spreadsheet",
     "sap/m/MessageToast"
-], function (Controller, JSONModel, Filter, FilterOperator, /* Spreadsheet, */ MessageToast) {
+], function (Controller, JSONModel, Filter, FilterOperator, Spreadsheet, MessageToast) {
     "use strict";
 
     return Controller.extend("workflowReport.workflowReport.controller.WorkflowReportList", {
@@ -156,35 +156,141 @@ sap.ui.define([
         },
 
         onExportToExcel: function () {
-            // Excel export using sap/ui/export/Spreadsheet is not available in OpenUI5
-            // This feature requires commercial SAPUI5 license
-            MessageToast.show("Excel export is only available in commercial SAPUI5. Please use commercial SAPUI5 for this feature.");
-
-            // Alternative: Export as CSV for OpenUI5
-            // Uncomment below to enable CSV export
-            /*
             var that = this;
-            var oModel = new ODataModel("/lmsproject/hana/xsodata/WorkflowReportService.xsodata/");
+            var sServiceUrl = "/lmsproject/hana/xsodata/WorkflowReportService.xsodata";
+            var aFilterObjects = this._aCurrentFilters || [];
 
-            oModel.read("/WorkflowLogView", {
-                filters: this._aCurrentFilters || [],
-                success: function (data) {
-                    var uniqueData = that._getUniqueData(data.results);
+            // Build filter query string
+            var sFilterQuery = "";
+            if (aFilterObjects.length > 0) {
+                var aFilterStrings = aFilterObjects.map(function(oFilter) {
+                    var sOperator = "";
+                    switch(oFilter.sOperator) {
+                        case FilterOperator.Contains:
+                            return "substringof('" + encodeURIComponent(oFilter.oValue1) + "'," + oFilter.sPath + ")";
+                        case FilterOperator.EQ:
+                            sOperator = "eq";
+                            break;
+                        case FilterOperator.BT:
+                            return oFilter.sPath + " ge datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "' and " +
+                                   oFilter.sPath + " le datetime'" + oFilter.oValue2.toISOString().split('.')[0] + "'";
+                        case FilterOperator.GE:
+                            return oFilter.sPath + " ge datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "'";
+                        case FilterOperator.LE:
+                            return oFilter.sPath + " le datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "'";
+                        default:
+                            sOperator = "eq";
+                    }
+                    return oFilter.sPath + " " + sOperator + " '" + encodeURIComponent(oFilter.oValue1) + "'";
+                });
+                sFilterQuery = "?$filter=" + aFilterStrings.join(" and ");
+            }
+
+            // Fetch all data without pagination for export
+            var oExportModel = new JSONModel();
+            var sExportUrl = sServiceUrl + "/WorkflowLogView" + sFilterQuery;
+
+            oExportModel.loadData(sExportUrl, null, true, "GET", false, false, {
+                "Content-Type": "application/json"
+            });
+
+            oExportModel.attachRequestCompleted(function() {
+                var oData = oExportModel.getData();
+                if (oData && oData.d && oData.d.results) {
+                    var uniqueData = that._getUniqueData(oData.d.results);
                     if (!uniqueData || uniqueData.length === 0) {
                         MessageToast.show("No data available to export.");
                         return;
                     }
 
-                    // Convert to CSV and download
-                    var csv = that._convertToCSV(uniqueData);
-                    that._downloadCSV(csv, "Workflow_Report.csv");
-                    MessageToast.show("Export to CSV successful!");
-                },
-                error: function (error) {
-                    console.error("Failed to export data:", error);
+                    // Export to Excel using Spreadsheet
+                    var aCols = that._createColumnConfig();
+                    var oSettings = {
+                        workbook: {
+                            columns: aCols,
+                            context: {
+                                application: "Workflow Report",
+                                version: "1.0"
+                            }
+                        },
+                        dataSource: uniqueData,
+                        fileName: "Workflow_Report.xlsx",
+                        worker: false
+                    };
+
+                    var oSheet = new Spreadsheet(oSettings);
+                    oSheet.build().finally(function() {
+                        oSheet.destroy();
+                    });
+
+                    MessageToast.show("Export to Excel successful!");
+                } else {
+                    MessageToast.show("No data available to export.");
                 }
             });
-            */
+
+            oExportModel.attachRequestFailed(function() {
+                console.error("Failed to export data");
+                MessageToast.show("Failed to export data.");
+            });
+        },
+
+        _createColumnConfig: function() {
+            return [
+                {
+                    label: "Request ID",
+                    property: "REQUEST_ID",
+                    type: "string"
+                },
+                {
+                    label: "Employee ID",
+                    property: "EMPLOYEE_ID",
+                    type: "string"
+                },
+                {
+                    label: "Employee Name",
+                    property: "EMPLOYEE_NAME",
+                    type: "string"
+                },
+                {
+                    label: "Workflow Type",
+                    property: "WORKFLOW_TYPE",
+                    type: "string"
+                },
+                {
+                    label: "Status",
+                    property: "WORKFLOW_STATUS",
+                    type: "string"
+                },
+                {
+                    label: "Class ID",
+                    property: "CLASS_ID",
+                    type: "string"
+                },
+                {
+                    label: "Class Title",
+                    property: "CLASS_TITLE",
+                    type: "string"
+                },
+                {
+                    label: "Start Date",
+                    property: "CLASS_START_DATE",
+                    type: "date",
+                    format: "yyyy-mm-dd"
+                },
+                {
+                    label: "End Date",
+                    property: "CLASS_END_DATE",
+                    type: "date",
+                    format: "yyyy-mm-dd"
+                },
+                {
+                    label: "Created Date",
+                    property: "CREATED_DATE",
+                    type: "date",
+                    format: "yyyy-mm-dd"
+                }
+            ];
         },
 
         onItemPress: function (oEvent) {
