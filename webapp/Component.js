@@ -1,10 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/UIComponent",
 	"sap/ui/Device",
-	"workflowReport/workflowReport/model/models",
-	"sap/ui/model/odata/v2/ODataModel"
+	"workflowReport/workflowReport/model/models"
 
-], function (UIComponent, Device, models, ODataModel) {
+], function (UIComponent, Device, models) {
 	"use strict";
 
 	return UIComponent.extend("workflowReport.workflowReport.Component", {
@@ -35,10 +34,6 @@ sap.ui.define([
 
 			// call the base component's init function
 			UIComponent.prototype.init.apply(this, arguments);
-
-			// Create and set the OData model
-			var oModel = new ODataModel("/lmsproject/hana/xsodata/WorkflowReportService.xsodata/");
-			this.setModel(oModel);
 
 			// enable routing
 			this.getRouter().initialize();

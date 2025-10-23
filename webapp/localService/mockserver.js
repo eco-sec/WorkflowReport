@@ -35,8 +35,9 @@ sap.ui.define([
 				var mockData = null;
 				var shouldMock = false;
 
-				// Mock OData Service Root (metadata, $batch)
-				if (url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata") > -1) {
+				// Mock OData Service Root (metadata, $batch, $count, WorkflowLogView)
+				if (url && url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata") > -1) {
+
 					// Handle metadata request
 					if (url.indexOf("$metadata") > -1) {
 						console.log("✅ Mocking: OData $metadata");
@@ -60,91 +61,71 @@ sap.ui.define([
 						return dfd.promise(mockXhr);
 					}
 
-					// Handle $batch request
-					if (url.indexOf("$batch") > -1) {
-						console.log("✅ Mocking: OData $batch");
-						mockData = oMockData.workflowReport;
-						shouldMock = true;
-					}
-
-					// Handle WorkflowLogView data request
-					else if (url.indexOf("/WorkflowLogView") > -1 || url.indexOf("$count") > -1) {
-						console.log("✅ Mocking: Workflow Report List API");
-
-						// Handle count request
-						if (url.indexOf("$count") > -1) {
-							var dfd2 = jQuery.Deferred();
-							var countXhr = {
-								readyState: 4,
-								status: 200,
-								statusText: "OK",
-								responseText: String(oMockData.workflowReport.d.results.length),
-								getResponseHeader: function() { return "text/plain"; },
-								getAllResponseHeaders: function() { return ""; }
-							};
-							setTimeout(function() {
-								if (options.success) options.success(countXhr.responseText, "success", countXhr);
-								if (options.complete) options.complete(countXhr, "success");
-								dfd2.resolve(countXhr.responseText, "success", countXhr);
-							}, 100);
-							return dfd2.promise(countXhr);
-						}
-
-						mockData = oMockData.workflowReport;
-						shouldMock = true;
-					}
-					// Handle service root request (just return empty success)
-					else {
-						console.log("✅ Mocking: OData Service Root");
-						var dfd3 = jQuery.Deferred();
-						var rootXhr = {
+					// Handle $count request
+					else if (url.indexOf("$count") > -1) {
+						console.log("✅ Mocking: OData $count");
+						var dfd2 = jQuery.Deferred();
+						var countXhr = {
 							readyState: 4,
 							status: 200,
 							statusText: "OK",
-							responseText: '{"d":{"EntitySets":["WorkflowLogView"]}}',
-							responseJSON: {"d":{"EntitySets":["WorkflowLogView"]}},
-							getResponseHeader: function() { return "application/json"; },
+							responseText: String(oMockData.workflowReport.d.results.length),
+							getResponseHeader: function() { return "text/plain"; },
 							getAllResponseHeaders: function() { return ""; }
 						};
 						setTimeout(function() {
-							if (options.success) options.success(rootXhr.responseJSON, "success", rootXhr);
-							if (options.complete) options.complete(rootXhr, "success");
-							dfd3.resolve(rootXhr.responseJSON, "success", rootXhr);
+							if (options.success) options.success(countXhr.responseText, "success", countXhr);
+							if (options.complete) options.complete(countXhr, "success");
+							dfd2.resolve(countXhr.responseText, "success", countXhr);
 						}, 100);
-						return dfd3.promise(rootXhr);
+						return dfd2.promise(countXhr);
+					}
+
+					// Handle WorkflowLogView data request
+					else if (url.indexOf("/WorkflowLogView") > -1) {
+						console.log("✅ Mocking: Workflow Report List API");
+						mockData = oMockData.workflowReport;
+						shouldMock = true;
+					}
+
+					// Handle service root request
+					else {
+						console.log("✅ Mocking: OData Service Root");
+						mockData = {"d":{"EntitySets":["WorkflowLogView"]}};
+						shouldMock = true;
 					}
 				}
 
 				// Mock User API
-				else if (url.indexOf("/services/userapi/currentUser") > -1 || url.indexOf("/scpServices/userAPI/currentUser") > -1) {
+				else if (url && (url.indexOf("/services/userapi/currentUser") > -1 || url.indexOf("/scpServices/userAPI/currentUser") > -1)) {
 					console.log("✅ Mocking: User API");
 					mockData = oMockData.currentUser;
 					shouldMock = true;
 				}
 
 				// Mock Subordinates API
-				else if (url.indexOf("/cpi/employee/getSubordinate") > -1 || url.indexOf("/cpi/tc/getSubordinate") > -1) {
+				else if (url && (url.indexOf("/cpi/employee/getSubordinate") > -1 || url.indexOf("/cpi/tc/getSubordinate") > -1)) {
 					console.log("✅ Mocking: Subordinates API");
 					mockData = oMockData.subordinates;
 					shouldMock = true;
 				}
 
 				// Mock Picklist Service
-				else if (url.indexOf("/lmsproject/hana/xsjs/PicklistService.xsjs") > -1) {
+				else if (url && url.indexOf("/lmsproject/hana/xsjs/PicklistService.xsjs") > -1) {
 					console.log("✅ Mocking: Picklist Service");
 					mockData = oMockData.picklists;
 					shouldMock = true;
 				}
 
 				// Mock Workflow Approval
-				else if (url.indexOf("/cpi/workflow/approve") > -1) {
+				else if (url && url.indexOf("/cpi/workflow/approve") > -1) {
 					console.log("✅ Mocking: Workflow Approval API");
 					mockData = oMockData.approvalResponse;
 					shouldMock = true;
 				}
 
 				// Mock Workflow Rejection
-				else if (url.indexOf("/cpi/workflow/reject") > -1) {
+				else if (url && url.indexOf("/cpi/workflow/reject") > -1) {
 					console.log("✅ Mocking: Workflow Rejection API");
 					mockData = oMockData.rejectionResponse;
 					shouldMock = true;

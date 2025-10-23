@@ -1,12 +1,11 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/model/odata/v2/ODataModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     // "sap/ui/export/Spreadsheet", // Not available in OpenUI5 - only in commercial SAPUI5
     "sap/m/MessageToast"
-], function (Controller, JSONModel, ODataModel, Filter, FilterOperator, /* Spreadsheet, */ MessageToast) {
+], function (Controller, JSONModel, Filter, FilterOperator, /* Spreadsheet, */ MessageToast) {
     "use strict";
 
     return Controller.extend("workflowReport.workflowReport.controller.WorkflowReportList", {
@@ -26,42 +25,79 @@ sap.ui.define([
 
         loadWorkflowLogData: function (filters, bIsExport) {
             var that = this;
-            var oModel = new ODataModel("/lmsproject/hana/xsodata/WorkflowReportService.xsodata/");
+            var sServiceUrl = "/lmsproject/hana/xsodata/WorkflowReportService.xsodata";
             var aFilterObjects = filters || [];
 
+            // Build filter query string
+            var sFilterQuery = "";
+            if (aFilterObjects.length > 0) {
+                var aFilterStrings = aFilterObjects.map(function(oFilter) {
+                    var sOperator = "";
+                    switch(oFilter.sOperator) {
+                        case FilterOperator.Contains:
+                            // For Contains, we use substringof in OData v2
+                            return "substringof('" + encodeURIComponent(oFilter.oValue1) + "'," + oFilter.sPath + ")";
+                        case FilterOperator.EQ:
+                            sOperator = "eq";
+                            break;
+                        case FilterOperator.BT:
+                            return oFilter.sPath + " ge datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "' and " +
+                                   oFilter.sPath + " le datetime'" + oFilter.oValue2.toISOString().split('.')[0] + "'";
+                        case FilterOperator.GE:
+                            return oFilter.sPath + " ge datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "'";
+                        case FilterOperator.LE:
+                            return oFilter.sPath + " le datetime'" + oFilter.oValue1.toISOString().split('.')[0] + "'";
+                        default:
+                            sOperator = "eq";
+                    }
+                    return oFilter.sPath + " " + sOperator + " '" + encodeURIComponent(oFilter.oValue1) + "'";
+                });
+                sFilterQuery = "?$filter=" + aFilterStrings.join(" and ");
+            }
+
+            // Build pagination query
+            var sPaginationQuery = "";
+            if (!bIsExport && sFilterQuery) {
+                sPaginationQuery = "&$skip=" + this._iSkip + "&$top=" + this._iPageSize;
+            } else if (!bIsExport) {
+                sPaginationQuery = "?$skip=" + this._iSkip + "&$top=" + this._iPageSize;
+            }
+
             // 1. Fetch total count
-            oModel.read("/WorkflowLogView/$count", {
-                filters: aFilterObjects,
-                success: function (iCount) {
-                    var oCountModel = new JSONModel({ total: parseInt(iCount, 10) });
-                    that.getView().setModel(oCountModel, "countModel");
-                }
+            var oCountModel = new JSONModel();
+            var sCountUrl = sServiceUrl + "/WorkflowLogView/$count" + sFilterQuery;
+            oCountModel.loadData(sCountUrl, null, true, "GET", false, false, {
+                "Content-Type": "application/json"
+            });
+            oCountModel.attachRequestCompleted(function() {
+                var sCount = oCountModel.getData();
+                that.getView().setModel(new JSONModel({ total: parseInt(sCount, 10) }), "countModel");
             });
 
             // 2. Fetch paged or full data
-            var mParams = {
-                filters: aFilterObjects,
-                success: function (data) {
-                    var uniqueData = that._getUniqueData(data.results);
-                    var oJsonModel = new JSONModel(uniqueData);
-                    that.getView().setModel(oJsonModel, "workflowLogModel");
-                    that.getView().byId("workflowLogTable").setBusy(false);
-                },
-                error: function (error) {
-                    console.error("Error loading WorkflowLog data:", error);
-                    that.getView().byId("workflowLogTable").setBusy(false);
-                }
-            };
-
-            if (!bIsExport) {
-                mParams.urlParameters = {
-                    "$skip": this._iSkip,
-                    "$top": this._iPageSize
-                };
-            }
+            var oDataModel = new JSONModel();
+            var sDataUrl = sServiceUrl + "/WorkflowLogView" + sFilterQuery + sPaginationQuery;
 
             this.getView().byId("workflowLogTable").setBusy(true);
-            oModel.read("/WorkflowLogView", mParams);
+
+            oDataModel.loadData(sDataUrl, null, true, "GET", false, false, {
+                "Content-Type": "application/json"
+            });
+
+            oDataModel.attachRequestCompleted(function() {
+                var oData = oDataModel.getData();
+                if (oData && oData.d && oData.d.results) {
+                    var uniqueData = that._getUniqueData(oData.d.results);
+                    var oJsonModel = new JSONModel(uniqueData);
+                    that.getView().setModel(oJsonModel, "workflowLogModel");
+                }
+                that.getView().byId("workflowLogTable").setBusy(false);
+            });
+
+            oDataModel.attachRequestFailed(function(oEvent) {
+                console.error("Error loading WorkflowLog data");
+                that.getView().byId("workflowLogTable").setBusy(false);
+            });
         },
 
         onSearch: function () {
