@@ -1,1 +1,39 @@
 /* Enter your custom styles here */
+
+/* Compact filter layout */
+.sapUiTinyMargin.sapUiVBox {
+    margin-bottom: 0.25rem !important;
+}
+
+.sapMLabel {
+    margin-bottom: 0.125rem !important;
+}
+
+/* Horizontal scrolling for table */
+.sapMScrollCont {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+/* Prevent text wrapping in table cells */
+.sapMText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Table styling */
+#workflowLogTable {
+    min-width: 100%;
+}
+
+/* Column header styling */
+.sapMListTblHeaderCell {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+/* Ensure columns maintain their width */
+.sapMListTblCell {
+    padding: 0.5rem;
+}

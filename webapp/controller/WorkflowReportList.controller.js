@@ -65,7 +65,7 @@ sap.ui.define([
 
             // 1. Fetch total count
             var oCountModel = new JSONModel();
-            var sCountUrl = sServiceUrl + "/WorkflowLogView/$count" + sFilterQuery;
+            var sCountUrl = sServiceUrl + "/WorkflowSingleApproverView/$count" + sFilterQuery;
             oCountModel.loadData(sCountUrl, null, true, "GET", false, false, {
                 "Content-Type": "application/json"
             });
@@ -76,7 +76,7 @@ sap.ui.define([
 
             // 2. Fetch paged or full data
             var oDataModel = new JSONModel();
-            var sDataUrl = sServiceUrl + "/WorkflowLogView" + sFilterQuery + sPaginationQuery;
+            var sDataUrl = sServiceUrl + "/WorkflowSingleApproverView" + sFilterQuery + sPaginationQuery;
 
             this.getView().byId("workflowLogTable").setBusy(true);
 
@@ -111,6 +111,10 @@ sap.ui.define([
             var sEmployeeOrgId = this.byId("employeeOrgIdInput").getValue();
             var dCreationDateFrom = this.byId("creationDateFrom").getDateValue();
             var dCreationDateTo = this.byId("creationDateTo").getDateValue();
+            var dClassStartDateFrom = this.byId("classStartDateFrom").getDateValue();
+            var dClassStartDateTo = this.byId("classStartDateTo").getDateValue();
+            var dClassEndDateFrom = this.byId("classEndDateFrom").getDateValue();
+            var dClassEndDateTo = this.byId("classEndDateTo").getDateValue();
             // var sApproverId = this.byId("approverIdInput").getValue();
             var sRequestId = this.byId("requestIdInput").getValue();
             var sWorkflowStatus = this.byId("workflowStatusInput").getSelectedKey();
@@ -133,10 +137,56 @@ sap.ui.define([
                 aFilters.push(new Filter("WLR_CREATION_DATE", FilterOperator.LE, dCreationDateTo));
             }
 
+            if (dClassStartDateFrom && dClassStartDateTo) {
+                aFilters.push(new Filter("CLASS_START_DATE", FilterOperator.BT, dClassStartDateFrom, dClassStartDateTo));
+            } else if (dClassStartDateFrom) {
+                aFilters.push(new Filter("CLASS_START_DATE", FilterOperator.GE, dClassStartDateFrom));
+            } else if (dClassStartDateTo) {
+                aFilters.push(new Filter("CLASS_START_DATE", FilterOperator.LE, dClassStartDateTo));
+            }
+
+            if (dClassEndDateFrom && dClassEndDateTo) {
+                aFilters.push(new Filter("CLASS_END_DATE", FilterOperator.BT, dClassEndDateFrom, dClassEndDateTo));
+            } else if (dClassEndDateFrom) {
+                aFilters.push(new Filter("CLASS_END_DATE", FilterOperator.GE, dClassEndDateFrom));
+            } else if (dClassEndDateTo) {
+                aFilters.push(new Filter("CLASS_END_DATE", FilterOperator.LE, dClassEndDateTo));
+            }
+
             this._iSkip = 0;
             this.getView().getModel("view").setProperty("/currentPage", 0);
             this._aCurrentFilters = aFilters;
             this.loadWorkflowLogData(aFilters);
+        },
+
+        onClearSearch: function () {
+            // Clear all input fields
+            this.byId("requestIdInput").setValue("");
+            this.byId("employeeIdInput").setValue("");
+            this.byId("workflowIdInput").setValue("");
+            this.byId("classIdInput").setValue("");
+            this.byId("classTitleInput").setValue("");
+            this.byId("employeeOrgIdInput").setValue("");
+
+            // Reset select controls to "All"
+            this.byId("trainingTypeInput").setSelectedKey("");
+            this.byId("workflowStatusInput").setSelectedKey("");
+
+            // Clear all date pickers
+            this.byId("creationDateFrom").setDateValue(null);
+            this.byId("creationDateTo").setDateValue(null);
+            this.byId("classStartDateFrom").setDateValue(null);
+            this.byId("classStartDateTo").setDateValue(null);
+            this.byId("classEndDateFrom").setDateValue(null);
+            this.byId("classEndDateTo").setDateValue(null);
+
+            // Reset pagination and filters
+            this._iSkip = 0;
+            this.getView().getModel("view").setProperty("/currentPage", 0);
+            this._aCurrentFilters = [];
+
+            // Load data without filters
+            this.loadWorkflowLogData([]);
         },
 
         onNextPage: function () {
@@ -188,7 +238,7 @@ sap.ui.define([
 
             // Fetch all data without pagination for export
             var oExportModel = new JSONModel();
-            var sExportUrl = sServiceUrl + "/WorkflowLogView" + sFilterQuery;
+            var sExportUrl = sServiceUrl + "/WorkflowSingleApproverView" + sFilterQuery;
 
             oExportModel.loadData(sExportUrl, null, true, "GET", false, false, {
                 "Content-Type": "application/json"

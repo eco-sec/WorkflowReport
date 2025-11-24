@@ -76,7 +76,7 @@ The mock server intercepts the following endpoints:
 |----------|--------|-------------|
 | `/scpServices/userAPI/currentUser` | GET | Current user information |
 | `/cpi/employee/getSubordinate` | GET | Employee subordinates |
-| `/lmsproject/hana/xsodata/WorkflowReportService.xsodata/WorkflowLogView` | GET | Workflow reports list |
+| `/lmsproject/hana/xsodata/WorkflowReportService.xsodata/WorkflowSingleApproverView` | GET | Workflow reports list |
 | `/lmsproject/hana/xsjs/PicklistService.xsjs` | GET | Picklist data |
 | `/cpi/workflow/approve` | POST | Approve workflow |
 | `/cpi/workflow/reject` | POST | Reject workflow |

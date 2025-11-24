@@ -28,7 +28,7 @@ sap.ui.define([
 		 */
 		fetchEvents: function () {
 			return new Promise((resolve, reject) => {
-				var sServiceUrl = this._sServiceOdataUrl + "/WorkflowReportService.xsodata/WorkflowLog?$format=json";
+				var sServiceUrl = this._sServiceOdataUrl + "/WorkflowReportService.xsodata/WorkflowSingleApproverView?$format=json";
 				var oModel = new sap.ui.model.json.JSONModel();
 
 				oModel.loadData(sServiceUrl, null, true, "GET", false, false, {
@@ -129,14 +129,14 @@ sap.ui.define([
 			});
 		},
 		/**
-		 * Fetches a single WorkflowLog by WORKFLOW_ID using $filter.
+		 * Fetches a single WorkflowSingleApproverView by WORKFLOW_ID using $filter.
 		 * @param {string} sWorkflowId - The WORKFLOW_ID to filter by.
-		 * @returns {Promise} A promise that resolves with the first matching WorkflowLog entry.
+		 * @returns {Promise} A promise that resolves with the first matching WorkflowSingleApproverView entry.
 		 */
 		getWorkflowLogById: function (sWorkflowId) {
 			return new Promise(function (resolve, reject) {
 				var sUrl = WorkflowReportService._sServiceOdataUrl +
-					"/WorkflowReportService.xsodata/WorkflowLog?$format=json&$filter=WORKFLOW_INSTANCE_ID eq '" +
+					"/WorkflowReportService.xsodata/WorkflowSingleApproverView?$format=json&$filter=WORKFLOW_INSTANCE_ID eq '" +
 					encodeURIComponent(sWorkflowId) + "'";
 
 				var oModel = new JSONModel();
@@ -149,12 +149,12 @@ sap.ui.define([
 					if (oData && oData.d && oData.d.results && oData.d.results.length > 0) {
 						resolve(oData.d.results[0]); // Return the first matched result
 					} else {
-						reject(new Error("No WorkflowLog found with WORKFLOW_ID: " + sWorkflowId));
+						reject(new Error("No WorkflowSingleApproverView found with WORKFLOW_ID: " + sWorkflowId));
 					}
 				});
 
 				oModel.attachRequestFailed(function () {
-					reject(new Error("Failed to fetch WorkflowLog for WORKFLOW_ID: " + sWorkflowId));
+					reject(new Error("Failed to fetch WorkflowSingleApproverView for WORKFLOW_ID: " + sWorkflowId));
 				});
 			});
 		},

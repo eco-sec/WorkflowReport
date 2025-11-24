@@ -35,7 +35,7 @@ sap.ui.define([
 				var mockData = null;
 				var shouldMock = false;
 
-				// Mock OData Service Root (metadata, $batch, $count, WorkflowLogView, WorkflowLog)
+				// Mock OData Service Root (metadata, $batch, $count, WorkflowSingleApproverView, WorkflowLog)
 				if (url && url.indexOf("/lmsproject/hana/xsodata/WorkflowReportService.xsodata") > -1) {
 
 					// Handle metadata request
@@ -46,7 +46,7 @@ sap.ui.define([
 							readyState: 4,
 							status: 200,
 							statusText: "OK",
-							responseText: '<?xml version="1.0" encoding="utf-8"?><edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"><edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><Schema Namespace="WorkflowReportService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"><EntityType Name="WorkflowLogView"><Key><PropertyRef Name="REQUEST_ID"/></Key><Property Name="REQUEST_ID" Type="Edm.String" Nullable="false"/><Property Name="EMPLOYEE_ID" Type="Edm.String"/><Property Name="EMPLOYEE_NAME" Type="Edm.String"/><Property Name="WORKFLOW_TYPE" Type="Edm.String"/><Property Name="WORKFLOW_STATUS" Type="Edm.String"/><Property Name="CLASS_ID" Type="Edm.String"/><Property Name="CLASS_TITLE" Type="Edm.String"/><Property Name="CLASS_START_DATE" Type="Edm.DateTime"/><Property Name="CLASS_END_DATE" Type="Edm.DateTime"/><Property Name="CREATED_DATE" Type="Edm.DateTime"/></EntityType><EntityContainer Name="WorkflowReportServiceEntities" m:IsDefaultEntityContainer="true"><EntitySet Name="WorkflowLogView" EntityType="WorkflowReportService.WorkflowLogView"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>',
+							responseText: '<?xml version="1.0" encoding="utf-8"?><edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"><edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><Schema Namespace="WorkflowReportService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"><EntityType Name="WorkflowSingleApproverView"><Key><PropertyRef Name="REQUEST_ID"/></Key><Property Name="REQUEST_ID" Type="Edm.String" Nullable="false"/><Property Name="EMPLOYEE_ID" Type="Edm.String"/><Property Name="EMPLOYEE_NAME" Type="Edm.String"/><Property Name="WORKFLOW_TYPE" Type="Edm.String"/><Property Name="WORKFLOW_STATUS" Type="Edm.String"/><Property Name="CLASS_ID" Type="Edm.String"/><Property Name="CLASS_TITLE" Type="Edm.String"/><Property Name="CLASS_START_DATE" Type="Edm.DateTime"/><Property Name="CLASS_END_DATE" Type="Edm.DateTime"/><Property Name="CREATED_DATE" Type="Edm.DateTime"/></EntityType><EntityContainer Name="WorkflowReportServiceEntities" m:IsDefaultEntityContainer="true"><EntitySet Name="WorkflowSingleApproverView" EntityType="WorkflowReportService.WorkflowSingleApproverView"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>',
 							getResponseHeader: function(name) {
 								if (name === "Content-Type") return "application/xml";
 								return null;
@@ -102,8 +102,8 @@ sap.ui.define([
 						shouldMock = true;
 					}
 
-					// Handle WorkflowLogView data request
-					else if (url.indexOf("/WorkflowLogView") > -1) {
+					// Handle WorkflowSingleApproverView data request
+					else if (url.indexOf("/WorkflowSingleApproverView") > -1) {
 						console.log("✅ Mocking: Workflow Report List API");
 						mockData = oMockData.workflowReport;
 						shouldMock = true;
@@ -112,7 +112,7 @@ sap.ui.define([
 					// Handle service root request
 					else {
 						console.log("✅ Mocking: OData Service Root");
-						mockData = {"d":{"EntitySets":["WorkflowLogView", "WorkflowLog"]}};
+						mockData = {"d":{"EntitySets":["WorkflowSingleApproverView", "WorkflowLog"]}};
 						shouldMock = true;
 					}
 				}
@@ -257,7 +257,7 @@ sap.ui.define([
 			// Mock Workflow Report List
 			aRequests.push({
 				method: "GET",
-				path: /.*\/lmsproject\/hana\/xsodata\/WorkflowReportService\.xsodata\/WorkflowLogView.*/,
+				path: /.*\/lmsproject\/hana\/xsodata\/WorkflowReportService\.xsodata\/WorkflowSingleApproverView.*/,
 				response: function(oXhr) {
 					console.log("✅ Mocking: Workflow Log View API");
 
@@ -316,7 +316,7 @@ sap.ui.define([
 				response: function(oXhr) {
 					console.log("✅ Mocking: OData Metadata");
 					oXhr.respond(200, { "Content-Type": "application/xml" },
-						'<?xml version="1.0" encoding="utf-8"?><edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"><edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><Schema Namespace="WorkflowReportService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"><EntityType Name="WorkflowLogView"><Key><PropertyRef Name="REQUEST_ID"/></Key><Property Name="REQUEST_ID" Type="Edm.String" Nullable="false"/><Property Name="EMPLOYEE_ID" Type="Edm.String"/><Property Name="EMPLOYEE_NAME" Type="Edm.String"/><Property Name="WORKFLOW_TYPE" Type="Edm.String"/><Property Name="WORKFLOW_STATUS" Type="Edm.String"/><Property Name="CLASS_ID" Type="Edm.String"/><Property Name="CLASS_TITLE" Type="Edm.String"/><Property Name="CLASS_START_DATE" Type="Edm.DateTime"/><Property Name="CLASS_END_DATE" Type="Edm.DateTime"/><Property Name="CREATED_DATE" Type="Edm.DateTime"/></EntityType><EntityContainer Name="WorkflowReportServiceEntities" m:IsDefaultEntityContainer="true"><EntitySet Name="WorkflowLogView" EntityType="WorkflowReportService.WorkflowLogView"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>');
+						'<?xml version="1.0" encoding="utf-8"?><edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"><edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"><Schema Namespace="WorkflowReportService" xmlns="http://schemas.microsoft.com/ado/2008/09/edm"><EntityType Name="WorkflowSingleApproverView"><Key><PropertyRef Name="REQUEST_ID"/></Key><Property Name="REQUEST_ID" Type="Edm.String" Nullable="false"/><Property Name="EMPLOYEE_ID" Type="Edm.String"/><Property Name="EMPLOYEE_NAME" Type="Edm.String"/><Property Name="WORKFLOW_TYPE" Type="Edm.String"/><Property Name="WORKFLOW_STATUS" Type="Edm.String"/><Property Name="CLASS_ID" Type="Edm.String"/><Property Name="CLASS_TITLE" Type="Edm.String"/><Property Name="CLASS_START_DATE" Type="Edm.DateTime"/><Property Name="CLASS_END_DATE" Type="Edm.DateTime"/><Property Name="CREATED_DATE" Type="Edm.DateTime"/></EntityType><EntityContainer Name="WorkflowReportServiceEntities" m:IsDefaultEntityContainer="true"><EntitySet Name="WorkflowSingleApproverView" EntityType="WorkflowReportService.WorkflowSingleApproverView"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>');
 				}
 			});
 

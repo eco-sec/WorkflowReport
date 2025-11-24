@@ -8,7 +8,9 @@
   },
   "scripts": {
     "start": "ui5 serve --open",
-    "build": "ui5 build --clean-dest --include-task=generateManifestBundle generateCachebusterInfo"
+    "build": "ui5 build --clean-dest --include-task=generateManifestBundle generateCachebusterInfo",
+    "zip": "zip -r WorkflowReport20251028.zip webapp/ neo-app.json ui5.yaml package.json flp-config.json -x '*.DS_Store' -x '*__MACOSX*' -x 'webapp/.git*' -x 'webapp/index.dev.html' -x '*CLAUDE.md'",
+    "zip:clean": "rm -f WorkflowReport20251028.zip && npm run zip"
   },
   "ui5": {
     "dependencies": [
