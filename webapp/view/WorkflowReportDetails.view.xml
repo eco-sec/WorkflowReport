@@ -200,6 +200,10 @@
 										<Label text="Facility:"/>
 										<Input value="{workflowLogModel>/FACILITY_DESC}" editable="false"/>
 									</VBox>
+									<VBox class="sapUiSmallMargin">
+										<Label text="Attendance Request Error:"/>
+										<TextArea value="{workflowLogModel>/ATTENDANCE_REQUEST_ERROR}" editable="false" rows="5" width="100%"/>
+									</VBox>
 									<!-- Row 9 -->
 									<!--<VBox class="sapUiSmallMargin">-->
 									<!--	<Label text="Creation Date:"/>-->
