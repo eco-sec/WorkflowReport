@@ -55,12 +55,19 @@ sap.ui.define([
                 sFilterQuery = "?$filter=" + aFilterStrings.join(" and ");
             }
 
+            // Build orderby query (descending by creation date and time)
+            var sOrderBy = "$orderby=WLR_CREATION_DATE desc,WLR_CREATION_TIME desc";
+
             // Build pagination query
             var sPaginationQuery = "";
             if (!bIsExport && sFilterQuery) {
-                sPaginationQuery = "&$skip=" + this._iSkip + "&$top=" + this._iPageSize;
+                sPaginationQuery = "&" + sOrderBy + "&$skip=" + this._iSkip + "&$top=" + this._iPageSize;
             } else if (!bIsExport) {
-                sPaginationQuery = "?$skip=" + this._iSkip + "&$top=" + this._iPageSize;
+                sPaginationQuery = "?" + sOrderBy + "&$skip=" + this._iSkip + "&$top=" + this._iPageSize;
+            } else if (sFilterQuery) {
+                sPaginationQuery = "&" + sOrderBy;
+            } else {
+                sPaginationQuery = "?" + sOrderBy;
             }
 
             // 1. Fetch total count
@@ -253,6 +260,20 @@ sap.ui.define([
                         return;
                     }
 
+                    // Pre-process data to format dates for export
+                    var aExportData = uniqueData.map(function(item) {
+                        var oItem = Object.assign({}, item);
+                        // Format creation date
+                        oItem.CREATION_DATE_FORMATTED = that.formatDate(item.WLR_CREATION_DATE);
+                        // Format creation time
+                        oItem.CREATION_TIME_FORMATTED = that.formatTime(item.WLR_CREATION_TIME);
+                        // Format class start date
+                        oItem.CLASS_START_DATE_FORMATTED = that.formatDate(item.CLASS_START_DATE);
+                        // Format class end date
+                        oItem.CLASS_END_DATE_FORMATTED = that.formatDate(item.CLASS_END_DATE);
+                        return oItem;
+                    });
+
                     // Export to Excel using Spreadsheet
                     var aCols = that._createColumnConfig();
                     var oSettings = {
@@ -263,7 +284,7 @@ sap.ui.define([
                                 version: "1.0"
                             }
                         },
-                        dataSource: uniqueData,
+                        dataSource: aExportData,
                         fileName: "Workflow_Report.xlsx",
                         worker: false
                     };
@@ -290,55 +311,102 @@ sap.ui.define([
                 {
                     label: "Request ID",
                     property: "REQUEST_ID",
-                    type: "string"
+                    type: "String"
                 },
                 {
                     label: "Employee ID",
                     property: "EMPLOYEE_ID",
-                    type: "string"
+                    type: "String"
                 },
                 {
                     label: "Employee Name",
                     property: "EMPLOYEE_NAME",
-                    type: "string"
-                },
-                {
-                    label: "Workflow Type",
-                    property: "WORKFLOW_TYPE",
-                    type: "string"
-                },
-                {
-                    label: "Status",
-                    property: "WORKFLOW_STATUS",
-                    type: "string"
+                    type: "String"
                 },
                 {
                     label: "Class ID",
                     property: "CLASS_ID",
-                    type: "string"
+                    type: "String"
                 },
                 {
                     label: "Class Title",
                     property: "CLASS_TITLE",
-                    type: "string"
+                    type: "String"
                 },
                 {
-                    label: "Start Date",
-                    property: "CLASS_START_DATE",
-                    type: "date",
-                    format: "yyyy-mm-dd"
+                    label: "Class Start Date",
+                    property: "CLASS_START_DATE_FORMATTED",
+                    type: "String"
                 },
                 {
-                    label: "End Date",
-                    property: "CLASS_END_DATE",
-                    type: "date",
-                    format: "yyyy-mm-dd"
+                    label: "Class End Date",
+                    property: "CLASS_END_DATE_FORMATTED",
+                    type: "String"
                 },
                 {
-                    label: "Created Date",
-                    property: "CREATED_DATE",
-                    type: "date",
-                    format: "yyyy-mm-dd"
+                    label: "Status",
+                    property: "WORKFLOW_STATUS",
+                    type: "String"
+                },
+                {
+                    label: "Training Type",
+                    property: "TRAINING_TYPE_DESC",
+                    type: "String"
+                },
+                {
+                    label: "Creation Date",
+                    property: "CREATION_DATE_FORMATTED",
+                    type: "String"
+                },
+                {
+                    label: "Creation Time",
+                    property: "CREATION_TIME_FORMATTED",
+                    type: "String"
+                },
+                {
+                    label: "Employee Organization ID",
+                    property: "EMPLOYEE_ORGANIZATION_ID",
+                    type: "String"
+                },
+                {
+                    label: "Approver Email",
+                    property: "CA_EMP_EMAIL",
+                    type: "String"
+                },
+                {
+                    label: "Approver No",
+                    property: "CA_EMP_NO",
+                    type: "String"
+                },
+                {
+                    label: "Approver Name",
+                    property: "CA_APPROVER_NAME",
+                    type: "String"
+                },
+                {
+                    label: "Approver Position",
+                    property: "CA_EMP_POSITION",
+                    type: "String"
+                },
+                {
+                    label: "Approver Org",
+                    property: "CA_EMP_ORG",
+                    type: "String"
+                },
+                {
+                    label: "Approver Org Name",
+                    property: "CA_EMP_ORG_NAME",
+                    type: "String"
+                },
+                {
+                    label: "Approver Position Name",
+                    property: "CA_POSITION_NAME",
+                    type: "String"
+                },
+                {
+                    label: "Approver Organization Name",
+                    property: "CA_ORG_NAME",
+                    type: "String"
                 }
             ];
         },
@@ -378,6 +446,58 @@ sap.ui.define([
             if (isNaN(oDate.getTime())) return "";
 
             return sap.ui.core.format.DateFormat.getDateInstance({ style: "medium" }).format(oDate);
+        },
+
+        formatTime: function (sTime) {
+            if (!sTime) return "";
+
+            // Parse ISO 8601 duration time format (e.g., "PT6H30M11S")
+            if (typeof sTime === "string" && sTime.startsWith("PT")) {
+                var hours = 0, minutes = 0, seconds = 0;
+                var hourMatch = sTime.match(/(\d+)H/);
+                var minMatch = sTime.match(/(\d+)M/);
+                var secMatch = sTime.match(/(\d+)S/);
+                if (hourMatch) hours = parseInt(hourMatch[1], 10);
+                if (minMatch) minutes = parseInt(minMatch[1], 10);
+                if (secMatch) seconds = parseInt(secMatch[1], 10);
+
+                // Format as HH:mm:ss
+                var sHours = hours.toString().padStart(2, '0');
+                var sMinutes = minutes.toString().padStart(2, '0');
+                var sSeconds = seconds.toString().padStart(2, '0');
+                return sHours + ":" + sMinutes + ":" + sSeconds;
+            }
+
+            return sTime;
+        },
+
+        formatDateTime: function (sDate, sTime) {
+            if (!sDate) return "";
+            let oDate;
+
+            if (typeof sDate === "string" && sDate.startsWith("/Date(")) {
+                const iTimestamp = parseInt(sDate.match(/\d+/)[0], 10);
+                oDate = new Date(iTimestamp);
+            } else {
+                oDate = new Date(sDate);
+            }
+
+            if (isNaN(oDate.getTime())) return "";
+
+            // Parse ISO 8601 duration time format (e.g., "PT6H30M11S")
+            if (sTime && typeof sTime === "string" && sTime.startsWith("PT")) {
+                var hours = 0, minutes = 0, seconds = 0;
+                var hourMatch = sTime.match(/(\d+)H/);
+                var minMatch = sTime.match(/(\d+)M/);
+                var secMatch = sTime.match(/(\d+)S/);
+                if (hourMatch) hours = parseInt(hourMatch[1], 10);
+                if (minMatch) minutes = parseInt(minMatch[1], 10);
+                if (secMatch) seconds = parseInt(secMatch[1], 10);
+                oDate.setHours(hours, minutes, seconds);
+            }
+
+            var oDateFormat = sap.ui.core.format.DateFormat.getDateTimeInstance({ pattern: "d MMM yyyy, HH:mm:ss" });
+            return oDateFormat.format(oDate);
         },
 
         _getUniqueData: function (data) {

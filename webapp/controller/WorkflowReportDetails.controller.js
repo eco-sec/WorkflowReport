@@ -43,6 +43,33 @@ sap.ui.define([
 			}
 		},
 
+		formatDateTimeFromEpoch: function (sDate, sTime) {
+			if (!sDate) return "";
+			var oDate;
+			if (typeof sDate === "string" && sDate.startsWith("/Date(")) {
+				const match = sDate.match(/\d+/);
+				if (!match) return "";
+				oDate = new Date(parseInt(match[0], 10));
+			} else {
+				oDate = new Date(sDate);
+			}
+			if (isNaN(oDate.getTime())) return "";
+
+			// Parse ISO 8601 duration time format (e.g., "PT6H30M11S")
+			if (sTime && typeof sTime === "string" && sTime.startsWith("PT")) {
+				var hours = 0, minutes = 0, seconds = 0;
+				var hourMatch = sTime.match(/(\d+)H/);
+				var minMatch = sTime.match(/(\d+)M/);
+				var secMatch = sTime.match(/(\d+)S/);
+				if (hourMatch) hours = parseInt(hourMatch[1], 10);
+				if (minMatch) minutes = parseInt(minMatch[1], 10);
+				if (secMatch) seconds = parseInt(secMatch[1], 10);
+				oDate.setHours(hours, minutes, seconds);
+			}
+
+			return sap.ui.core.format.DateFormat.getDateTimeInstance({ pattern: "d MMM yyyy, HH:mm:ss" }).format(oDate);
+		},
+
 		_loadEventData: function (sEventId) {
 			var that = this;
 

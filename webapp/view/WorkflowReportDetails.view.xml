@@ -204,15 +204,10 @@
 										<Label text="Attendance Request Error:"/>
 										<TextArea value="{workflowLogModel>/ATTENDANCE_REQUEST_ERROR}" editable="false" rows="5" width="100%"/>
 									</VBox>
-									<!-- Row 9 -->
-									<!--<VBox class="sapUiSmallMargin">-->
-									<!--	<Label text="Creation Date:"/>-->
-									<!--	<Input value="{path: 'workflowLogModel>/WLR_CREATION_DATE', formatter: '.formatter.formatEpochDate'}" editable="false"/>-->
-									<!--</VBox>-->
-									<!--<VBox class="sapUiSmallMargin">-->
-									<!--	<Label text="Update Date:"/>-->
-									<!--	<Input value="{path: 'workflowLogModel>/WLR_UPDATE_DATE', formatter: '.formatter.formatEpochDate'}" editable="false"/>-->
-									<!--</VBox>-->
+									<VBox class="sapUiSmallMargin">
+										<Label text="Creation Date &amp; Time:"/>
+										<Input value="{parts: ['workflowLogModel>/WLR_CREATION_DATE', 'workflowLogModel>/WLR_CREATION_TIME'], formatter: '.formatDateTimeFromEpoch'}" editable="false"/>
+									</VBox>
 									<!-- Row 10 -->
 								</l:Grid>
 							</Panel>
@@ -273,6 +268,8 @@
 										<Input value="{workflowReportModel>/gradeLevel}" editable="false"/>
 										<Label text="Facility:"/>
 										<Input value="{workflowReportModel>/facility}" editable="false"/>
+										<Label text="Creation Date &amp; Time:"/>
+										<Input value="{parts: ['workflowLogModel>/WLR_CREATION_DATE', 'workflowLogModel>/WLR_CREATION_TIME'], formatter: '.formatDateTimeFromEpoch'}" editable="false"/>
 									</VBox>
 								</l:Grid>
 							</Panel>
