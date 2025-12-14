@@ -445,7 +445,7 @@ sap.ui.define([
 
             if (isNaN(oDate.getTime())) return "";
 
-            return sap.ui.core.format.DateFormat.getDateInstance({ style: "medium" }).format(oDate);
+            return sap.ui.core.format.DateFormat.getDateInstance({ pattern: "dd-MM-yyyy" }).format(oDate);
         },
 
         formatTime: function (sTime) {
