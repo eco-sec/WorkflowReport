@@ -369,13 +369,8 @@ sap.ui.define([
                     type: "String"
                 },
                 {
-                    label: "Approver Email",
-                    property: "CA_EMP_EMAIL",
-                    type: "String"
-                },
-                {
                     label: "Approver No",
-                    property: "CA_EMP_NO",
+                    property: "CA_APPROVER_ID",
                     type: "String"
                 },
                 {
@@ -384,18 +379,8 @@ sap.ui.define([
                     type: "String"
                 },
                 {
-                    label: "Approver Position",
-                    property: "CA_EMP_POSITION",
-                    type: "String"
-                },
-                {
-                    label: "Approver Org",
-                    property: "CA_EMP_ORG",
-                    type: "String"
-                },
-                {
-                    label: "Approver Org Name",
-                    property: "CA_EMP_ORG_NAME",
+                    label: "Approver Email",
+                    property: "CA_APPROVER_EMAIL",
                     type: "String"
                 },
                 {
