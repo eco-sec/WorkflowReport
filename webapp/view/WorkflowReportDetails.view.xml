@@ -270,6 +270,9 @@
 										<Input value="{workflowReportModel>/facility}" editable="false"/>
 										<Label text="Creation Date &amp; Time:"/>
 										<Input value="{parts: ['workflowLogModel>/WLR_CREATION_DATE', 'workflowLogModel>/WLR_CREATION_TIME'], formatter: '.formatDateTimeFromEpoch'}" editable="false"/>
+										<Label text="Attendance Error:"/>
+										<TextArea value="{workflowReportModel>/attendanceError}" editable="false" rows="5" width="100%"/>
+										
 									</VBox>
 								</l:Grid>
 							</Panel>

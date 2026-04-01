@@ -75,18 +75,16 @@ sap.ui.define([
 
 			console.log("  → Step 1: Fetching WorkflowLog for ID:", sEventId);
 
-			// Step 1: Get WorkflowLog by ID
+			// Step 1: Get WorkflowLog by ID (OData - always has status and attendance error)
 			WorkflowReportService.getWorkflowLogById(sEventId)
 				.then(function (workflowLogData) {
 					console.log("  ✅ WorkflowLog data received:", workflowLogData);
-					// Optional: Set the WorkflowLog data in a model if needed
 					that.getView().setModel(new JSONModel(workflowLogData), "workflowLogModel");
 					var trainingTypeId = workflowLogData.TRAINING_TYPE_ID;
 
 					// Step 2: Check if this is a Business Event type (TRAINING_TYPE === "12")
 					var isBusinessEvent = workflowLogData.TRAINING_TYPE_ID === "12";
 
-					// If it is a business event, load the businessEventModel first
 					var businessEventPromise = Promise.resolve();
 					if (isBusinessEvent) {
 						businessEventPromise = WorkflowReportService.getEventById(workflowLogData.REQUEST_ID)
@@ -99,14 +97,16 @@ sap.ui.define([
 							});
 					}
 
-					// Step 3: After handling the business event (if needed), get workflow request details
+					// Step 3: Get workflow request details from CPI, fallback to OData if instance is empty
 					return businessEventPromise.then(function () {
 						return WorkflowReportService.getRequestDetailsById(sEventId)
 							.then(function (oData) {
+								// Use status and attendance error from OData as the source of truth
+								oData.status = workflowLogData.WORKFLOW_STATUS || oData.status;
+								oData.attendanceError = workflowLogData.ATTENDANCE_REQUEST_ERROR || oData.attendanceError;
 								var oModel = new JSONModel(oData);
 								that.getView().setModel(oModel, "workflowReportModel");
 
-								// Set tab visibility based on available data
 								var oTabVisibility = {
 									showWorkflowLogInfoTab: trainingTypeId === "11",
 									showInfoTab: trainingTypeId !== "11" && trainingTypeId !== "12",
@@ -114,6 +114,45 @@ sap.ui.define([
 									showCurrentApproverList: !!(oData.currentApproverList && oData.currentApproverList.length > 0),
 									showApproverList: !!(oData.approverList && oData.approverList.length > 0),
 									showApproverCommentList: !!(oData.ApproverCommentList && oData.ApproverCommentList.length > 0)
+								};
+
+								that.getView().setModel(new JSONModel(oTabVisibility), "tabVisibility");
+							})
+							.catch(function (oCpiError) {
+								// CPI instance is empty/failed - use OData data as fallback
+								console.warn("CPI request details not found, using OData data:", oCpiError);
+
+								var oFallbackData = {
+									requestId: workflowLogData.REQUEST_ID,
+									status: workflowLogData.WORKFLOW_STATUS,
+									trainingTypeId: workflowLogData.TRAINING_TYPE_ID,
+									trainingTypeDesc: workflowLogData.TRAINING_TYPE_DESC,
+									classId: workflowLogData.CLASS_ID,
+									classTitle: workflowLogData.CLASS_TITLE,
+									classDescription: workflowLogData.CLASS_DESCRIPTION,
+									classTotalDays: workflowLogData.CLASS_TOTAL_DAYS,
+									classStartDateDesc: workflowLogData.CLASS_START_DATE,
+									classEndDateDesc: workflowLogData.CLASS_END_DATE,
+									employeeId: workflowLogData.EMPLOYEE_ID,
+									employeeName: workflowLogData.EMPLOYEE_NAME,
+									employeeMail: workflowLogData.EMPLOYEE_EMAIL,
+									employeeOrganizationId: workflowLogData.EMPLOYEE_ORGANIZATION_ID,
+									price: workflowLogData.PRICE,
+									currency: workflowLogData.CURRENCY,
+									trainingLanguage: workflowLogData.TRAINING_LANGUAGE,
+									trainingDuration: workflowLogData.TRAINING_DURATION,
+									facility: workflowLogData.FACILITY_DESC,
+									attendanceError: workflowLogData.ATTENDANCE_REQUEST_ERROR
+								};
+								that.getView().setModel(new JSONModel(oFallbackData), "workflowReportModel");
+
+								var oTabVisibility = {
+									showWorkflowLogInfoTab: trainingTypeId === "11",
+									showInfoTab: trainingTypeId !== "11" && trainingTypeId !== "12",
+									showBusinessEventTab: trainingTypeId === "12",
+									showCurrentApproverList: false,
+									showApproverList: false,
+									showApproverCommentList: false
 								};
 
 								that.getView().setModel(new JSONModel(oTabVisibility), "tabVisibility");
