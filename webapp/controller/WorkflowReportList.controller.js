@@ -364,8 +364,8 @@ sap.ui.define([
                     type: "String"
                 },
                 {
-                    label: "Employee Organization Name",
-                    property: "CA_EMP_ORG_NAME",
+                    label: "Employee Organization ID",
+                    property: "EMPLOYEE_ORGANIZATION_ID",
                     type: "String"
                 },
                 {
